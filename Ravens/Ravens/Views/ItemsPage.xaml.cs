@@ -10,6 +10,10 @@ using Xamarin.Forms.Xaml;
 using Ravens.Models;
 using Ravens.Views;
 using Ravens.ViewModels;
+using Firebase.Auth;
+using Firebase.Database;
+using Ravens.Helpers;
+using Xamarin.Auth;
 
 namespace Ravens.Views
 {
@@ -51,5 +55,53 @@ namespace Ravens.Views
             if (viewModel.Items.Count == 0)
                 viewModel.LoadItemsCommand.Execute(null);
         }
+
+        private void Button_Clicked(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Request");
+            requestFirebaseLogin();
+        }
+
+        private async void requestFirebaseLogin()
+        {
+            // TODO Refactor this into a class
+            System.Diagnostics.Debug.WriteLine("Begin");
+            var authProvider = new FirebaseAuthProvider(new FirebaseConfig(Secrets.FirebaseApiKey));
+
+            // TODO enable third party login
+            // see https://medium.com/step-up-labs/firebase-authentication-c-library-8e5e1c30acc2
+            // and https://docs.microsoft.com/en-us/xamarin/xamarin-forms/data-cloud/authentication/oauth
+            // var token = "";
+            // var auth = await authProvider.SignInWithOAuthAsync(FirebaseAuthType.Google, token);
+
+            // For now, just login with email and password
+            System.Diagnostics.Debug.WriteLine("Logging in...");
+            var auth = await authProvider.SignInWithEmailAndPasswordAsync("userEmail", "userPassword");
+
+            var firebase = new FirebaseClient(
+              "https://project-ravens.firebaseio.com/",
+              new FirebaseOptions
+              {
+                  AuthTokenAsyncFactory = () => Task.FromResult(auth.FirebaseToken)
+              });
+
+            /*System.Diagnostics.Debug.WriteLine("Request data");
+            var data = await firebase
+              .Child("test")
+              .OnceAsync<TestData>();
+
+            foreach (var testData in data)
+            {
+                System.Diagnostics.Debug.WriteLine($"{testData.Key} says {testData.Object.text}");
+            }
+            */
+            System.Diagnostics.Debug.WriteLine("Done");
+
+        }
+    }
+
+    internal class TestData
+    {
+        public string text;
     }
 }

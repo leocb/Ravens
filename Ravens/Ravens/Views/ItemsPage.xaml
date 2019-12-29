@@ -13,6 +13,7 @@
     </ContentPage.ToolbarItems>
 
     <StackLayout>
+        <Button Text="Login" HorizontalOptions="Center" VerticalOptions="Center" Clicked="Button_Clicked"></Button>
         <ListView x:Name="ItemsListView"
                 ItemsSource="{Binding Items}"
                 VerticalOptions="FillAndExpand"
